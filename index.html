@@ -1,0 +1,125 @@
+  <!docutype html>
+  <html>
+  <head>
+
+  </head>
+  <body>
+  <div>
+    <h1>
+      <span id="tokenName">tokenName</span>ウォレット
+    </h1>
+    <h2>
+      アドレス:
+    </h2>
+    <p>
+    <span id="address">アドレス:</span>
+    </p>
+
+  </div>
+  <div>
+    <h2>残高:</h2>
+    <p>
+    <span id="balance"></span><span id="tokenSymbol"></span> (　<span id="balanceYen"></span>円)
+    </p>
+  </div>
+  
+  <form id="transferForm">
+   <h2>
+   送信相手
+   </h2>
+   <input type="text" id="transferTo"/>
+   <h2>
+   送金額
+   </h2>
+   <input type="number" id="transferAmount"/>
+   <input type="submit" value="送金"/>
+  </form>
+  
+  <h2>
+  トランザクション一覧
+  </h2>
+  <ol id ="transactionList">
+  </ol>
+
+  <script>
+  const address= "0xC60B71b002fCF1049c6B765288701Cd819C29170";
+  
+  const abi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"CFO","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"cap","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"mint","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"account","type":"address"}],"name":"addMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"renounceMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"CEO","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"isMinter","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"account","type":"address"}],"name":"MinterAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"account","type":"address"}],"name":"MinterRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"constant":false,"inputs":[{"name":"newCEO","type":"address"}],"name":"setCEO","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newCFO","type":"address"}],"name":"setCFO","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"withdrawEther","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"account","type":"address"}],"name":"removeMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+  
+  window.addEventListener("load",()=>{
+  
+    window.web3.eth.getAccounts((error,result)=>{
+    
+    const accountAddress = result[0]
+    const htmlAddress = document.getElementById("address");
+    htmlAddress.innerText = accountAddress;
+    
+    const contract = window.web3.eth.contract(abi).at(address);
+    console.log(contract);
+    
+    contract.name({from: accountAddress},(error,result) =>{
+    	const span_tokenName = document.getElementById("tokenName");
+      span_tokenName.innerText = result;
+    });
+    
+    contract.balanceOf(accountAddress,{from: accountAddress},(error,result) =>{
+    	const span_balance = document.getElementById("balance");
+      span_balance.innerText = window.web3.fromWei(result,"ether");
+      
+      //日本円の出力
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=Ethereum&vs_currencies=jpy")
+      	.then(response =>{
+        	return response.json();
+        })
+        .then(json =>{
+        	const balance = window.web3.fromWei(result,"ether");
+        	const balance_in_yen = balance * (json.ethereum.jpy);
+          
+        	const span_balanceYen = document.getElementById("balanceYen");
+          span_balanceYen.innerText = balance_in_yen;
+        })
+    });
+    
+    contract.symbol({from: accountAddress},(error,result) =>{
+    	const span_symbol = document.getElementById("tokenSymbol");
+      span_symbol.innerText = result;
+    });
+    
+    
+    const transferForm = document.getElementById("transferForm");
+    console.log(transferForm);
+    transferForm.addEventListener("submit",event =>{
+    	event.preventDefault();
+      
+      const inputTransferTo = document.getElementById("transferTo");
+      const inputTransferAmount = document.getElementById("transferAmount");
+      
+      const to = inputTransferTo.value;
+      const amount = inputTransferAmount.value;
+      
+      if(to === "" || amount ===""){
+      return;
+      }
+      
+      //ただトランザクションを送信するだけで取引が確定しているわけではない
+      contract.transfer(to,amount,{from:accountAddress},(error,result) =>{
+      	//resultにはトランザクションハッシュがくる
+        //ropsten.etherscan.io/tx/[ハッシュ値]で確認できる
+      	console.log(result);
+        const olTransactionList = document.getElementById("transactionList");
+        olTransactionList.innerHTML = olTransactionList.innerHTML + `
+        <li><a href="https://ropsten.etherscan.io/tx/${result}" target = "_blank">
+        送金: To ${to}
+        Amount:${amount}</a></li>
+        `;
+        
+        //coingekko
+        
+      });
+    });
+    
+    });
+  });
+  </script>
+  </body>
+  </html>
